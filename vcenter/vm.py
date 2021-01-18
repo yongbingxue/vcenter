@@ -1,5 +1,7 @@
 import logging
 
+from requests.exceptions import Timeout
+
 
 class VM(object):
     def __init__(self, vcenter, vm_name):
@@ -16,7 +18,10 @@ class VM(object):
 
         logging.info("power_on %s ", self._vm_name)
         url = f"/rest/vcenter/vm/{self.get_id()}/power/start"
-        self._vcenter.post(url)
+        try:
+            self._vcenter.post(url, timeout=10)
+        except Timeout:
+            logging.info("power_on vm timeout ")
 
     def power_off(self):
         if not self.exists():
@@ -27,7 +32,10 @@ class VM(object):
 
         logging.info("power_off %s ", self._vm_name)
         url = f"/rest/vcenter/vm/{self.get_id()}/power/stop"
-        self._vcenter.post(url)
+        try:
+            self._vcenter.post(url, timeout=10)
+        except Timeout:
+            logging.info("power_off vm timeout ")
 
     def find(self):
         url = "/rest/vcenter/vm"
